@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>粒子扩散效果</title>
+    <style>
+        body{
+            margin: 0;
+            padding: 0;
+            background: #000;
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    <script>
+        (function(){
+            // 设置画布
+            var canvas = document.querySelector("#canvas"),
+                ctx = canvas.getContext('2d');
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight,
+                objArr = [],
+                timer = null;    
+
+            // 小球对象
+            function Ball(){
+                this.x = canvas.width/2;
+                this.y = canvas.height/2;
+                this.dx = parseInt(Math.random() * 40 - 20); //x的变化值
+                this.dy = parseInt(Math.random() * 40 - 20); //y的变化值
+                this.r = parseInt(Math.random() * 10 + 10);
+                this.color = `rgba(${Math.random() * 256},${Math.random() * 256},${Math.random() * 256},${Math.random() * 0.5 + 0.5})`;
+                // 生成一个追加到小球数组
+                objArr.push(this);
+            };
+
+            // 画小球
+            Ball.prototype.draw = function(){
+                ctx.save();
+                // 画线
+                ctx.strokeStyle = this.color;
+                ctx.beginPath();
+                ctx.moveTo(this.x,this.y);
+                ctx.lineTo(this.x+this.dx,this.y+this.dy);                
+                ctx.closePath();
+                ctx.stroke();
+                ctx.restore();               
+            }
+
+            // 更新
+            Ball.prototype.update = function(){
+                this.x += this.dx;
+                this.y += this.dy;
+                
+                // 超过屏幕销毁
+                if(this.x > canvas.width || this.x< 0 || this.y>canvas.height || this.y < 0){
+                    this.destroy()
+                }
+            }
+
+            // 销毁
+            Ball.prototype.destroy = function(){
+                objArr.map((item,index,arr) => {
+                    if(item === this){
+                        arr.splice(index,1);
+                    }
+                })
+            }
+
+            // 渲染
+            Ball.prototype.render = function(){
+                // 清屏
+                ctx.clearRect(0,0,canvas.width,canvas.height);              
+                objArr.map(item=>{
+                    item.update();
+                    item.draw();
+                })
+            }  
+            
+            setInterval(()=>{
+                var ball = new Ball(); 
+                ball.render();
+            },20)
+        })()
+    </script>
+</body>
+</html>
